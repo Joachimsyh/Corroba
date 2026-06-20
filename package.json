@@ -7,6 +7,7 @@
     "predev": "node scripts/dev-health-check.mjs",
     "dev": "concurrently -n web,api -c cyan,magenta \"npm run dev --prefix apps/web\" \"npm run dev --prefix apps/api\"",
     "install:all": "npm install && npm install --prefix apps/web && npm install --prefix apps/api",
+    "vercel-build": "npm run build --prefix apps/web",
     "build": "npm run build --prefix apps/api && npm run build --prefix apps/web",
     "start": "npm run start --prefix apps/api",
     "db:generate": "npm run db:generate --prefix apps/api",
@@ -15,6 +16,11 @@
     "db:seed": "npm run db:seed --prefix apps/api",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
+  },
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
