@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { getStore, addSource, addSignals, DEMO_ANALYTICS, resetStore, WORKSPACE_ID } from '../store/memory.js';
+import { getStore, addSource, addSignals, DEMO_ANALYTICS, resetStore, WORKSPACE_ID, addPlaybook, addFeedback, getGtmMetrics } from '../store/memory.js';
 import { parseFileContent, validateUploadFile, FileParseError } from '../ai/file-parser.js';
 import {
   expandAudienceWithContext,
@@ -22,8 +22,10 @@ import {
 import { SUPPORTED_UPLOAD_TYPES, SUPPORTED_PASTE_TYPES } from '../rag/supported-types.js';
 import { loadDemoSources } from '../rag/demo-data-loader.js';
 import { cleanTrustSignals } from '../utils/signals.js';
+import { resetUnifyNotifications } from '../integrations/unify-notifications.js';
 import { fetchUnifyConversations } from '../integrations/unify.js';
 import { validateProofOnSocialMedia, getFaxxingStatus } from '../integrations/faxxing.js';
+import unifyNotificationsRoutes from './unify-notifications.js';
 
 const app = new Hono();
 
@@ -207,6 +209,9 @@ app.get('/api/unify/conversations', async (c) => {
   }
 });
 
+/** Unify — Simulated Mitel Notifications API (no CloudLink tokens required) */
+app.route('/api/unify/notifications', unifyNotificationsRoutes);
+
 app.get('/api/rag/supported-types', (c) =>
   c.json({ uploads: SUPPORTED_UPLOAD_TYPES, pasteTypes: SUPPORTED_PASTE_TYPES })
 );
@@ -327,6 +332,7 @@ app.patch('/api/settings', async (c) => {
 
 app.post('/api/demo/reset', (c) => {
   resetStore();
+  resetUnifyNotifications();
   return c.json({ message: 'Demo data reset' });
 });
 

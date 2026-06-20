@@ -113,6 +113,32 @@ export interface RagQueryResult {
   source: 'unify' | 'demo' | 'local';
 }
 
+export interface UnifyNotificationEvent {
+  id: string;
+  event: string;
+  conversationId: string;
+  message: string;
+  timestamp: string;
+  receivedAt: string;
+}
+
+export interface UnifySubscription {
+  subscriptionId: string;
+  topic: string;
+  subjectFilter: string;
+  webhookUrl: string;
+  createdAt: string;
+}
+
+export interface UnifyNotificationsStatus {
+  service: string;
+  mode: string;
+  provider: string;
+  subscriptions: number;
+  eventsReceived: number;
+  endpoints: Record<string, string>;
+}
+
 export interface DashboardData {
   workspaceId: string;
   stats: {
@@ -144,6 +170,19 @@ export const api = {
   queryRag: (query: string, topK = 5) =>
     request<RagQueryResult>('/api/rag/query', { method: 'POST', body: JSON.stringify({ query, topK }) }),
   getUnifyConversations: () => request<{ conversations: unknown[]; source: string; total: number }>('/api/unify/conversations'),
+  getUnifyNotificationsStatus: () => request<UnifyNotificationsStatus>('/api/unify/notifications/status'),
+  getUnifySubscriptions: () => request<UnifySubscription[]>('/api/unify/notifications/subscriptions'),
+  getUnifyNotificationEvents: () => request<UnifyNotificationEvent[]>('/api/unify/notifications/events'),
+  subscribeUnifyNotifications: (data: { topic: string; subjectFilter: string; webhookUrl: string }) =>
+    request<{ status: string; subscriptionId: string; topic: string; subjectFilter: string; webhookUrl: string }>(
+      '/api/unify/notifications/subscribe',
+      { method: 'POST', body: JSON.stringify(data) }
+    ),
+  testUnifyNotification: (data: { event: string; conversationId: string; message: string }) =>
+    request<{ status: string; subscriptionsNotified: number }>('/api/unify/notifications/test', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
   getGtmPlaybooks: () => request<unknown[]>('/api/gtm-playbooks'),
   generateGtm: () => request<{ playbooks: unknown[]; poweredBy: string }>('/api/gtmengineer/generate', { method: 'POST' }),
   generateGtmFromSignals: () =>

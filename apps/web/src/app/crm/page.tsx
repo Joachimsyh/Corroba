@@ -40,7 +40,7 @@ export default function CrmPage() {
       </div>
       <Card className="border-cyan-500/30 bg-cyan-500/5">
         <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mb-2">Zero Integration Ready</Badge>
-        <p className="text-sm text-muted-foreground">Add <code className="text-primary">ZERO_API_KEY</code> and <code className="text-primary">ZERO_API_URL</code> to .env to sync.</p>
+        <p className="text-sm text-muted-foreground">Connect live integrations in Settings when you&apos;re ready to go beyond demo mode.</p>
       </Card>
       <div className="flex flex-wrap gap-2">
         {types.map((t) => (
