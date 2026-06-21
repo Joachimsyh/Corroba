@@ -5,6 +5,8 @@ import { api } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useTheme, type Theme } from '@/components/ThemeProvider';
+import { getCompactSidebar, setCompactSidebar } from '@/lib/preferences';
 
 interface Settings {
   demoMode: boolean;
@@ -21,13 +23,22 @@ const integrations = [
   { key: 'scaile', name: 'Scaile', role: 'Growth recommendations' }
 ];
 
+const THEME_OPTIONS: { value: Theme; label: string; hint: string }[] = [
+  { value: 'light', label: 'Light', hint: 'Bright workspace' },
+  { value: 'dark', label: 'Dark', hint: 'Default Corroba look' },
+  { value: 'system', label: 'System', hint: 'Match your OS' }
+];
+
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [resetting, setResetting] = useState(false);
   const [message, setMessage] = useState('');
+  const [compactSidebar, setCompactSidebarState] = useState(false);
 
   useEffect(() => {
     api.getSettings().then((d) => setSettings(d as Settings));
+    setCompactSidebarState(getCompactSidebar());
   }, []);
 
   async function resetDemo() {
@@ -54,9 +65,55 @@ export default function SettingsPage() {
     <div className="space-y-8 animate-fade-in">
       <div>
         <h1 className="text-3xl font-bold gradient-text">Settings</h1>
-        <p className="text-muted-foreground mt-2">Configure demo mode and manage integrations.</p>
+        <p className="text-muted-foreground mt-2">Configure appearance, demo mode, and integrations.</p>
       </div>
       {message && <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 text-sm text-emerald-400">{message}</div>}
+
+      <Card className="space-y-4">
+        <h2 className="font-semibold">Appearance</h2>
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">Choose how Corroba looks on your device.</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {THEME_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTheme(option.value)}
+                className={`rounded-lg border p-4 text-left transition-all ${
+                  theme === option.value
+                    ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10'
+                    : 'border-border hover:border-primary/30 hover:bg-accent/50'
+                }`}
+              >
+                <p className="font-medium text-sm">{option.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{option.hint}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <div>
+            <p className="text-sm font-medium">Compact sidebar</p>
+            <p className="text-xs text-muted-foreground">Show icons only on desktop for more space.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !compactSidebar;
+              setCompactSidebarState(next);
+              setCompactSidebar(next);
+              window.dispatchEvent(new Event('corroba-preferences-change'));
+            }}
+            className={`relative h-7 w-12 rounded-full transition-colors ${compactSidebar ? 'bg-primary' : 'bg-muted'}`}
+          >
+            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${compactSidebar ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Tip: press <kbd className="rounded border border-border bg-muted px-1">Ctrl</kbd>+<kbd className="rounded border border-border bg-muted px-1">K</kbd> anywhere to open quick navigation.
+        </p>
+      </Card>
+
       {settings && (
         <Card className="space-y-4">
           <h2 className="font-semibold">Demo Mode</h2>
